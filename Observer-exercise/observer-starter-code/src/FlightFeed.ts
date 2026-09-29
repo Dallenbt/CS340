@@ -1,12 +1,21 @@
 import { Flight } from "./entity/Flight";
 import { FlightStates } from "./entity/FlightStates";
+import { Subject } from "./Observer";
 
-export class FlightFeed {
+export class FlightFeed extends Subject<Flight | null> {
   private OPEN_SKY_BASE_URL = "https://opensky-network.org/api/states/all";
   // private OPEN_SKY_BASE_URL = "https://students.cs.byu.edu/~cs340ta/observer/index.php"
 
-  // Flight property
-  _flight: Flight | null = null;
+  private _flight: Flight | null = null;
+
+  public get flight(): Flight | null {
+    return this._flight;
+  }
+
+  private set flight(value: Flight | null) {
+    this._flight = value;
+    this.notifyObservers(value);
+  }
 
   async start(): Promise<void> {
     let allFlights: FlightStates | null = await this.getFirstFlights();
@@ -14,7 +23,6 @@ export class FlightFeed {
     if (allFlights != null && allFlights.states.length > 0) {
       // Monitor the first flight returned by Open Sky
       this.setFlight(allFlights.states[0]);
-      console.log(this._flight);
 
       while (true) {
         let UPDATE_DELAY_SEC = 60; // 60 seconds
@@ -22,18 +30,16 @@ export class FlightFeed {
 
         // Get latest flight info
         let newFlight: Flight | null =
-          this._flight == null
+          this.flight == null
             ? null
-            : await this.getSingleFlight(this._flight);
+            : await this.getSingleFlight(this.flight);
 
         if (newFlight == null) {
-          console.log('Flight over');
           break;
         } else {
-          if (JSON.stringify(this._flight) !== JSON.stringify(newFlight)) {
+          if (JSON.stringify(this.flight) !== JSON.stringify(newFlight)) {
             // Flight info changed
             this.setFlight(newFlight);
-            console.log(this._flight);
           } 
         } 
       }
@@ -41,7 +47,7 @@ export class FlightFeed {
   }
 
   private setFlight(value: Flight | null): void {
-    this._flight = value;
+    this.flight = value;
   }
 
   private async getFirstFlights(): Promise<FlightStates | null> {

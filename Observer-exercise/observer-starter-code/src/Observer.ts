@@ -1,22 +1,22 @@
 
-interface Observer {
-    update(): void;
+export interface Observer<T> {
+    update(value: T): void;
 }
 
-abstract class Subject {
-    private observers: Observer[] = [];
+export abstract class Subject<T> {
+    private observers: Observer<T>[] = [];
 
-    public addObserver(observer: Observer): void {
+    public addObserver(observer: Observer<T>): void {
         this.observers.push(observer);
     }
 
-    public removeObserver(observer: Observer): void {
+    public removeObserver(observer: Observer<T>): void {
         this.observers = this.observers.filter(obs => obs !== observer);
     }
 
-    public notifyObservers(): void {
+    public notifyObservers(value: T): void {
         for (const observer of this.observers) {
-            observer.update();
+            observer.update(value);
         }
     }
 }
