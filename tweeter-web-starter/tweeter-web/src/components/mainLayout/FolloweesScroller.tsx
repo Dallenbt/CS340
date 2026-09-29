@@ -1,16 +1,20 @@
+import { useContext } from "react";
+import {
+  UserInfoContext,
+  UserInfoActionsContext,
+} from "../userInfo/UserInfoContexts";
 import { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken, FakeData, User } from "tweeter-shared";
+import { ToastActionsContext } from "../toaster/ToastContexts";
 import { useParams } from "react-router-dom";
 import { ToastType } from "../toaster/Toast";
-import UserItemScroller from "./UserItemScroller";
-import { useMessageActions } from "../hooks/useMessageActions";
-import { useUserInfo } from "../hooks/useUserInfo";
-import { useUserInfoActions } from "../hooks/useUserInfoActions";
+import UserItem from "../userItem/UserItem";
 
 export const PAGE_SIZE = 10;
 
 const FolloweesScroller = () => {
-  const { displayToast } = useMessageActions();
+  const { displayToast } = useContext(ToastActionsContext);
   const [items, setItems] = useState<User[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
   const [lastItem, setLastItem] = useState<User | null>(null);
@@ -18,8 +22,8 @@ const FolloweesScroller = () => {
   const addItems = (newItems: User[]) =>
     setItems((previousItems) => [...previousItems, ...newItems]);
 
-  const { displayedUser, authToken } = useUserInfo();
-  const { setDisplayedUser } = useUserInfoActions();
+  const { displayedUser, authToken } = useContext(UserInfoContext);
+  const { setDisplayedUser } = useContext(UserInfoActionsContext);
   const { displayedUser: displayedUserAliasParam } = useParams();
 
   // Update the displayed user context variable whenever the displayedUser url parameter changes. This allows browser forward and back buttons to work correctly.
@@ -89,12 +93,24 @@ const FolloweesScroller = () => {
   };
 
   return (
-    <UserItemScroller
-      items={items}
-      hasMoreItems={hasMoreItems}
-      loadMoreItems={() => loadMoreItems(lastItem)}
-      featurePath="/followees"
-    />
+    <div className="container px-0 overflow-visible vh-100">
+      <InfiniteScroll
+        className="pr-0 mr-0"
+        dataLength={items.length}
+        next={() => loadMoreItems(lastItem)}
+        hasMore={hasMoreItems}
+        loader={<h4>Loading...</h4>}
+      >
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="row mb-3 mx-0 px-0 border rounded bg-white"
+          >
+            <UserItem user={item} featurePath="/followees" />
+          </div>
+        ))}
+      </InfiniteScroll>
+    </div>
   );
 };
 

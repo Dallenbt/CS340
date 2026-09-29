@@ -1,13 +1,13 @@
 import "./Login.css";
 import "bootstrap/dist/css/bootstrap.css";
+import { useContext } from "react";
+import { UserInfoActionsContext } from "../../userInfo/UserInfoContexts";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import AuthenticationFields from "../AuthenticationFields";
 import { AuthToken, FakeData, User } from "tweeter-shared";
+import { ToastActionsContext } from "../../toaster/ToastContexts";
 import { ToastType } from "../../toaster/Toast";
-import { useMessageActions } from "../../hooks/useMessageActions";
-import { useUserInfoActions } from "../../hooks/useUserInfoActions";
 
 interface Props {
   originalUrl?: string;
@@ -20,8 +20,8 @@ const Login = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-  const { updateUserInfo } = useUserInfoActions();
-  const { displayToast } = useMessageActions();
+  const { updateUserInfo } = useContext(UserInfoActionsContext);
+  const { displayToast } = useContext(ToastActionsContext);
 
   const checkSubmitButtonStatus = (): boolean => {
     return !alias || !password;
@@ -71,6 +71,36 @@ const Login = (props: Props) => {
     return [user, FakeData.instance.authToken];
   };
 
+  const inputFieldFactory = () => {
+    return (
+      <>
+        <div className="form-floating">
+          <input
+            type="text"
+            className="form-control"
+            size={50}
+            id="aliasInput"
+            placeholder="name@example.com"
+            onKeyDown={loginOnEnter}
+            onChange={(event) => setAlias(event.target.value)}
+          />
+          <label htmlFor="aliasInput">Alias</label>
+        </div>
+        <div className="form-floating mb-3">
+          <input
+            type="password"
+            className="form-control bottom"
+            id="passwordInput"
+            placeholder="Password"
+            onKeyDown={loginOnEnter}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+          <label htmlFor="passwordInput">Password</label>
+        </div>
+      </>
+    );
+  };
+
   const switchAuthenticationMethodFactory = () => {
     return (
       <div className="mb-3">
@@ -84,15 +114,7 @@ const Login = (props: Props) => {
       headingText="Please Sign In"
       submitButtonLabel="Sign in"
       oAuthHeading="Sign in with:"
-      inputFields={
-        <AuthenticationFields
-          alias={alias}
-          password={password}
-          onAliasChange={setAlias}
-          onPasswordChange={setPassword}
-          onKeyDown={loginOnEnter}
-        />
-      }
+      inputFieldFactory={inputFieldFactory}
       switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
       setRememberMe={setRememberMe}
       submitButtonDisabled={checkSubmitButtonStatus}

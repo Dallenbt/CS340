@@ -1,5 +1,6 @@
 import "./App.css";
-import { useUserInfo } from "./components/hooks/useUserInfo";
+import { useContext } from "react";
+import { UserInfoContext } from "./components/userInfo/UserInfoContexts";
 import {
   BrowserRouter,
   Navigate,
@@ -17,7 +18,7 @@ import FeedScroller from "./components/mainLayout/FeedScroller";
 import StoryScroller from "./components/mainLayout/StoryScroller";
 
 const App = () => {
-  const { currentUser, authToken } = useUserInfo();
+  const { currentUser, authToken } = useContext(UserInfoContext);
 
   const isAuthenticated = (): boolean => {
     return !!currentUser && !!authToken;
@@ -38,7 +39,7 @@ const App = () => {
 };
 
 const AuthenticatedRoutes = () => {
-  const { displayedUser } = useUserInfo();
+  const { displayedUser } = useContext(UserInfoContext);
 
   return (
     <Routes>
