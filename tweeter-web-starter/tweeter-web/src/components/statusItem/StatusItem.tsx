@@ -11,9 +11,10 @@ import { ToastActionsContext } from "../toaster/ToastContexts";
 
 interface Props {
   status: Status;
+  featurePath: string;
 }
 
-const StatusItem = ({ status }: Props) => {
+const StatusItem = ({ status, featurePath }: Props) => {
   const { displayedUser, authToken } = useContext(UserInfoContext);
   const { setDisplayedUser } = useContext(UserInfoActionsContext);
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const StatusItem = ({ status }: Props) => {
       if (toUser) {
         if (!toUser.equals(displayedUser!)) {
           setDisplayedUser(toUser);
-          navigate(`/feed/${toUser.alias}`);
+          navigate(`${featurePath}/${toUser.alias}`);
         }
       }
     } catch (error) {
