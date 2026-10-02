@@ -73,13 +73,13 @@ const StatusItem = ({ status, featurePath }: Props) => {
                 {status.user.firstName} {status.user.lastName}
               </b>{" "}
               -{" "}
-              <Link to={`/feed/${status.user.alias}`} onClick={navigateToUser}>
+              <Link to={`${featurePath}/${status.user.alias}`} onClick={navigateToUser}>
                 {status.user.alias}
               </Link>
             </h2>
             {status.formattedDate}
             <br />
-            <Post status={status} featurePath="/feed" />
+            <Post status={status} featurePath={featurePath} />
           </div>
         </div>
       </div>
