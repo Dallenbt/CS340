@@ -12,10 +12,12 @@ import Login from "./components/authentication/login/Login";
 import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
-import FolloweesScroller from "./components/mainLayout/FolloweesScroller";
-import FollowersScroller from "./components/mainLayout/FollowersScroller";
-import FeedScroller from "./components/mainLayout/FeedScroller";
-import StoryScroller from "./components/mainLayout/StoryScroller";
+import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
+import UserItemScroller from "./components/mainLayout/UserItemScroller";
+import { FakeData } from "tweeter-shared/dist/util/FakeData";
+import { User } from "tweeter-shared/dist/model/domain/User";
+import { AuthToken } from "tweeter-shared/dist/model/domain/AuthToken";
+import { Status } from "tweeter-shared/dist/model/domain/Status";
 
 const App = () => {
   const { currentUser, authToken } = useContext(UserInfoContext);
@@ -41,16 +43,82 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useContext(UserInfoContext);
 
+  const loadMoreFollowees = async (
+    authToken: AuthToken,
+    userAlias: string,
+    pageSize: number,
+    lastItem: User | null,
+  ): Promise<[User[], boolean]> => {
+    // TODO: Replace with the result of calling server
+    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+  };
+
+  const loadMoreFollowers = async (
+    authToken: AuthToken,
+    userAlias: string,
+    pageSize: number,
+    lastItem: User | null,
+  ): Promise<[User[], boolean]> => {
+    // TODO: Replace with the result of calling server
+    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+  };
+
+  const loadMoreFeedItems = async (
+      authToken: AuthToken,
+      userAlias: string,
+      pageSize: number,
+      lastItem: Status | null,
+    ): Promise<[Status[], boolean]> => {
+      // TODO: Replace with the result of calling server
+      return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+    };
+
+    const loadMoreStoryItems = async (
+        authToken: AuthToken,
+        userAlias: string,
+        pageSize: number,
+        lastItem: Status | null,
+      ): Promise<[Status[], boolean]> => {
+        // TODO: Replace with the result of calling server
+        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+      };
+
   return (
     <Routes>
       <Route element={<MainLayout />}>
-        <Route index element={<Navigate to={`/feed/${displayedUser!.alias}`} />} />
-        <Route path="feed/:displayedUser" element={<FeedScroller />} />
-        <Route path="story/:displayedUser" element={<StoryScroller />} />
-        <Route path="followees/:displayedUser" element={<FolloweesScroller />} />
-        <Route path="followers/:displayedUser" element={<FollowersScroller />} />
+        <Route
+          index
+          element={<Navigate to={`/feed/${displayedUser!.alias}`} />}
+        />
+        <Route path="feed/:displayedUser" element={<StatusItemScroller itemDescription="feed items" featurePath="/feed" loadMore={loadMoreFeedItems} />} />
+        <Route path="story/:displayedUser" element={<StatusItemScroller itemDescription="story items" featurePath="/story" loadMore={loadMoreStoryItems} />} />
+        <Route
+          path="followees/:displayedUser"
+          element={
+            <UserItemScroller
+              key={'followees-' + displayedUser!.alias}
+              itemDescription="followees"
+              featurePath="/followees"
+              loadMore={loadMoreFollowees}
+            />
+          }
+        />
+        <Route
+          path="followers/:displayedUser"
+          element={
+            <UserItemScroller
+              key={'followers-' + displayedUser!.alias}
+              itemDescription="followers"
+              featurePath="/followers"
+              loadMore={loadMoreFollowers}
+            />
+          }
+        />
         <Route path="logout" element={<Navigate to="/login" />} />
-        <Route path="*" element={<Navigate to={`/feed/${displayedUser!.alias}`} />} />
+        <Route
+          path="*"
+          element={<Navigate to={`/feed/${displayedUser!.alias}`} />}
+        />
       </Route>
     </Routes>
   );

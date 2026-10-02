@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface Props {
   function: (event: React.KeyboardEvent<HTMLElement>) => void;
   setAlias: (value: string) => void;
