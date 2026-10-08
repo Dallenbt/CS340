@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { User } from "tweeter-shared";
 import { useParams } from "react-router-dom";
@@ -18,15 +18,14 @@ interface Props {
 const UserItemScroller = (props: Props) => {
   const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<User[]>([]);
-
   const { displayedUser, authToken } = useUserInfo();
   const { setDisplayedUser } = useUserInfoActions();
   const { displayedUser: displayedUserAliasParam } = useParams();
 
   const listener: UserItemView = {
-    addItems: (newItems: User[]) =>
+    addItems: (newItems) =>
       setItems((previousItems) => [...previousItems, ...newItems]),
-    displayErrorMessage: displayErrorMessage,
+    displayErrorMessage,
   };
 
   const presenter = useRef<UserItemPresenter | null>(null);
@@ -34,44 +33,56 @@ const UserItemScroller = (props: Props) => {
     presenter.current = props.presenterFactory(listener);
   }
 
-  // Update the displayed user context variable whenever the displayedUser url parameter changes. This allows browser forward and back buttons to work correctly.
   useEffect(() => {
     if (
       authToken &&
+      displayedUser &&
       displayedUserAliasParam &&
-      displayedUserAliasParam != displayedUser!.alias
+      displayedUserAliasParam !== displayedUser.alias
     ) {
-      presenter
-        .current!.getUser(authToken!, displayedUserAliasParam!)
-        .then((toUser) => {
-          if (toUser) {
-            setDisplayedUser(toUser);
+      presenter.current!
+        .getUser(authToken, displayedUserAliasParam)
+        .then((user) => {
+          if (user) {
+            setDisplayedUser(user);
           }
-        });
+        })
+        .catch((error) =>
+          displayErrorMessage(
+            `Failed to get user because of exception: ${error}`,
+            "text-white bg-danger",
+          ),
+        );
     }
-  }, [displayedUserAliasParam]);
+  }, [
+    authToken,
+    displayedUser,
+    displayedUserAliasParam,
+    displayErrorMessage,
+    setDisplayedUser,
+  ]);
 
-  // Initialize the component whenever the displayed user changes
   useEffect(() => {
-    reset();
-    loadMoreItems();
-  }, [displayedUser]);
-
-  const reset = async () => {
-    setItems(() => []);
-    presenter.current!.reset();
-  };
-
-  const loadMoreItems = async () => {
-    presenter.current!.loadMoreItems(authToken!, displayedUser!.alias);
-  };
+    if (authToken && displayedUser) {
+      setItems([]);
+      presenter.current!.reset();
+      void presenter.current!.loadMoreItems(authToken, displayedUser.alias);
+    }
+  }, [authToken, displayedUser]);
 
   return (
     <div className="container px-0 overflow-visible vh-100">
       <InfiniteScroll
         className="pr-0 mr-0"
         dataLength={items.length}
-        next={() => loadMoreItems()}
+        next={() => {
+          if (authToken && displayedUser) {
+            void presenter.current!.loadMoreItems(
+              authToken,
+              displayedUser.alias,
+            );
+          }
+        }}
         hasMore={presenter.current!.hasMoreItems}
         loader={<h4>Loading...</h4>}
       >

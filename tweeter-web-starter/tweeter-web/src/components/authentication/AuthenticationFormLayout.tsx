@@ -1,15 +1,18 @@
+import { ReactNode } from "react";
 import OAuth from "./OAuth";
 
 interface Props {
   headingText: string;
   submitButtonLabel: string;
   oAuthHeading: string;
-  inputFieldFactory: () => JSX.Element;
-  switchAuthenticationMethodFactory: () => JSX.Element;
+  inputFields: ReactNode;
+  switchAuthenticationMethod: ReactNode;
+  rememberMe: boolean;
   setRememberMe: (value: boolean) => void;
-  submitButtonDisabled: () => boolean;
+  submitButtonDisabled: boolean;
   isLoading: boolean;
   submit: () => void;
+  onOAuthSelected: (provider: string) => void;
 }
 
 const AuthenticationFormLayout = (props: Props) => {
@@ -25,33 +28,28 @@ const AuthenticationFormLayout = (props: Props) => {
             height="72"
           />
           <h1 className="h3 mb-3 fw-normal">{props.headingText}</h1>
-
-          {props.inputFieldFactory()}
-
+          {props.inputFields}
           <h1 className="h4 mb-3 fw-normal">Or</h1>
           <h1 className="h5 mb-3 fw-normal">{props.oAuthHeading}</h1>
-
-          <OAuth />
-
+          <OAuth onProviderSelected={props.onOAuthSelected} />
           <div className="checkbox mb-3">
             <label>
               <input
                 type="checkbox"
                 value="remember-me"
+                checked={props.rememberMe}
                 onChange={(event) => props.setRememberMe(event.target.checked)}
               />{" "}
               Remember me
             </label>
           </div>
-
-          {props.switchAuthenticationMethodFactory()}
-
+          {props.switchAuthenticationMethod}
           <button
             id="submitButton"
             className="w-100 btn btn-lg btn-primary"
             type="button"
-            disabled={props.submitButtonDisabled()}
-            onClick={() => props.submit()}
+            disabled={props.submitButtonDisabled}
+            onClick={props.submit}
           >
             {props.isLoading ? (
               <span

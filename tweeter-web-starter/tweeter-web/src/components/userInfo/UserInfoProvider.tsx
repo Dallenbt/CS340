@@ -2,46 +2,17 @@ import { useCallback, useMemo, useState } from "react";
 import { User, AuthToken } from "tweeter-shared";
 import { UserInfoContext, UserInfoActionsContext } from "./UserInfoContexts";
 import { UserInfo } from "./UserInfo";
-
-const CURRENT_USER_KEY: string = "CurrentUserKey";
-const AUTH_TOKEN_KEY: string = "AuthTokenKey";
+import { UserInfoService } from "../../model.service/UserInfoService";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const UserInfoProvider: React.FC<Props> = ({ children }) => {
-  const saveToLocalStorage = (
-    currentUser: User,
-    authToken: AuthToken
-  ): void => {
-    localStorage.setItem(CURRENT_USER_KEY, currentUser.toJson());
-    localStorage.setItem(AUTH_TOKEN_KEY, authToken.toJson());
-  };
-
-  const retrieveFromLocalStorage = (): UserInfo => {
-    const loggedInUser = User.fromJson(localStorage.getItem(CURRENT_USER_KEY));
-    const authToken = AuthToken.fromJson(localStorage.getItem(AUTH_TOKEN_KEY));
-
-    if (!!loggedInUser && !!authToken) {
-      return {
-        currentUser: loggedInUser,
-        displayedUser: loggedInUser,
-        authToken: authToken,
-      };
-    } else {
-      return { currentUser: null, displayedUser: null, authToken: null };
-    }
-  };
-
-  const clearLocalStorage = (): void => {
-    localStorage.removeItem(CURRENT_USER_KEY);
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-  };
-
-  const [userInfo, setUserInfo] = useState({
-    ...retrieveFromLocalStorage(),
-  });
+  const userInfoService = useMemo(() => new UserInfoService(), []);
+  const [userInfo, setUserInfo] = useState<UserInfo>(() =>
+    userInfoService.retrieve(),
+  );
 
   const updateUserInfo = useCallback(
     (
@@ -59,10 +30,10 @@ const UserInfoProvider: React.FC<Props> = ({ children }) => {
       });
 
       if (remember) {
-        saveToLocalStorage(currentUser, authToken);
+        userInfoService.save(currentUser, authToken);
       }
     },
-    []
+    [userInfoService]
   );
 
   const clearUserInfo = useCallback(() => {
@@ -74,8 +45,8 @@ const UserInfoProvider: React.FC<Props> = ({ children }) => {
       };
     });
 
-    clearLocalStorage();
-  }, []);
+    userInfoService.clear();
+  }, [userInfoService]);
 
   const setDisplayedUser = useCallback((user: User) => {
     setUserInfo((previous) => {

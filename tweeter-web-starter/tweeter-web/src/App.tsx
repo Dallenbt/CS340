@@ -12,13 +12,13 @@ import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import { FakeData } from "tweeter-shared/dist/util/FakeData";
-import { AuthToken } from "tweeter-shared/dist/model/domain/AuthToken";
-import { Status } from "tweeter-shared/dist/model/domain/Status";
 import { useUserInfo } from "./components/userInfo/UserHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
+import { FeedPresenter } from "./presenter/FeedPresenter";
+import { StoryPresenter } from "./presenter/StoryPresenter";
+import { StatusItemView } from "./presenter/StatusItemPresenter";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -44,26 +44,6 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useUserInfo();
 
-  const loadMoreFeedItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null,
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
-
-  const loadMoreStoryItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null,
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
-
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -75,9 +55,10 @@ const AuthenticatedRoutes = () => {
           path="feed/:displayedUser"
           element={
             <StatusItemScroller
-              itemDescription="feed items"
               featurePath="/feed"
-              loadMore={loadMoreFeedItems}
+              presenterFactory={(view: StatusItemView) =>
+                new FeedPresenter(view)
+              }
             />
           }
         />
@@ -85,9 +66,10 @@ const AuthenticatedRoutes = () => {
           path="story/:displayedUser"
           element={
             <StatusItemScroller
-              itemDescription="story items"
               featurePath="/story"
-              loadMore={loadMoreStoryItems}
+              presenterFactory={(view: StatusItemView) =>
+                new StoryPresenter(view)
+              }
             />
           }
         />

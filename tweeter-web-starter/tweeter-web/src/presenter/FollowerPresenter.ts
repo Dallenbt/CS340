@@ -27,7 +27,7 @@ export class FollowerPresenter extends UserItemPresenter {
       this.view.addItems(newItems);
     } catch (error) {
       this.view.displayErrorMessage(
-        `Failed to load followees because of exception: ${error}`,
+        `Failed to load followers because of exception: ${error}`,
       );
     }
   }

@@ -1,60 +1,33 @@
 import "./PostStatus.css";
-import { useState } from "react";
-import { AuthToken, Status } from "tweeter-shared";
+import { useRef, useState } from "react";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo } from "../userInfo/UserHooks";
+import { PostStatusPresenter } from "../../presenter/PostStatusPresenter";
 
 const PostStatus = () => {
-  const { displayInfoMessage, deleteMessage, displayErrorMessage } = useMessageActions();
-
+  const { displayInfoMessage, deleteMessage, displayErrorMessage } =
+    useMessageActions();
   const { currentUser, authToken } = useUserInfo();
   const [post, setPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const submitPost = async (event: React.MouseEvent) => {
-    event.preventDefault();
+  const presenter = useRef<PostStatusPresenter | null>(null);
+  if (!presenter.current) {
+    presenter.current = new PostStatusPresenter({
+      setPost,
+      setLoading: setIsLoading,
+      displayInfoMessage,
+      deleteMessage,
+      displayErrorMessage,
+    });
+  }
 
-    var postingStatusToastId = "";
-
-    try {
-      setIsLoading(true);
-      postingStatusToastId = displayInfoMessage("Posting status...", 0);
-
-      const status = new Status(post, currentUser!, Date.now());
-
-      await postStatus(authToken!, status);
-
-      setPost("");
-      displayInfoMessage("Status posted!", 2000);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to post the status because of exception: ${error}`,
-        "text-white bg-danger"
-      );
-    } finally {
-      deleteMessage(postingStatusToastId);
-      setIsLoading(false);
-    }
-  };
-
-  const postStatus = async (
-    authToken: AuthToken,
-    newStatus: Status,
-  ): Promise<void> => {
-    // Pause so we can see the logging out message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server to post the status
-  };
-
-  const clearPost = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setPost("");
-  };
-
-  const checkButtonStatus: () => boolean = () => {
-    return !post.trim() || !authToken || !currentUser || isLoading;
-  };
+  const canSubmit = presenter.current.canSubmit(
+    post,
+    authToken,
+    currentUser,
+    isLoading,
+  );
 
   return (
     <form>
@@ -65,9 +38,7 @@ const PostStatus = () => {
           rows={10}
           placeholder="What's on your mind?"
           value={post}
-          onChange={(event) => {
-            setPost(event.target.value);
-          }}
+          onChange={(event) => setPost(event.target.value)}
         />
       </div>
       <div className="form-group">
@@ -75,9 +46,13 @@ const PostStatus = () => {
           id="postStatusButton"
           className="btn btn-md btn-primary me-1"
           type="button"
-          disabled={checkButtonStatus()}
+          disabled={!canSubmit}
           style={{ width: "8em" }}
-          onClick={submitPost}
+          onClick={() => {
+            if (authToken && currentUser) {
+              void presenter.current!.submit(post, authToken, currentUser);
+            }
+          }}
         >
           {isLoading ? (
             <span
@@ -93,8 +68,8 @@ const PostStatus = () => {
           id="clearStatusButton"
           className="btn btn-md btn-secondary"
           type="button"
-          disabled={checkButtonStatus()}
-          onClick={clearPost}
+          disabled={!canSubmit}
+          onClick={(event) => presenter.current!.clear(event)}
         >
           Clear
         </button>

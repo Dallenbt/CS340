@@ -1,36 +1,28 @@
 import "./AppNavbar.css";
-import { Container, Nav, Navbar } from "react-bootstrap";
+import { Container, Image, Nav, Navbar } from "react-bootstrap";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import Image from "react-bootstrap/Image";
-import { AuthToken } from "tweeter-shared";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserHooks";
+import { LogoutPresenter } from "../../presenter/LogoutPresenter";
+import { useRef } from "react";
 
 const AppNavbar = () => {
   const location = useLocation();
   const { authToken, displayedUser } = useUserInfo();
   const { clearUserInfo } = useUserInfoActions();
   const navigate = useNavigate();
-  const { displayInfoMessage, deleteMessage, displayErrorMessage } = useMessageActions();
-
-  const logOut = async () => {
-    const loggingOutToastId = displayInfoMessage("Logging Out...", 0);
-
-    try {
-      await logout(authToken!);
-
-      deleteMessage(loggingOutToastId);
-      clearUserInfo();
-      navigate("/login");
-    } catch (error) {
-      displayErrorMessage(`Failed to log user out because of exception: ${error}`);
-    }
-  };
-
-  const logout = async (authToken: AuthToken): Promise<void> => {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
-  };
+  const { displayInfoMessage, deleteMessage, displayErrorMessage } =
+    useMessageActions();
+  const presenter = useRef<LogoutPresenter | null>(null);
+  if (!presenter.current) {
+    presenter.current = new LogoutPresenter({
+      clearUserInfo,
+      navigate,
+      displayInfoMessage,
+      deleteMessage,
+      displayErrorMessage,
+    });
+  }
 
   return (
     <Navbar
@@ -109,7 +101,11 @@ const AppNavbar = () => {
             <Nav.Item>
               <NavLink
                 id="logout"
-                onClick={logOut}
+                onClick={() => {
+                  if (authToken) {
+                    void presenter.current!.logout(authToken);
+                  }
+                }}
                 to={location.pathname}
                 className={({ isActive }) =>
                   isActive ? "nav-link active" : "nav-link"

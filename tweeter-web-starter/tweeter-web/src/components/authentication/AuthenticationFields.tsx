@@ -1,5 +1,7 @@
 interface Props {
-  function: (event: React.KeyboardEvent<HTMLElement>) => void;
+  onKeyDown: (event: React.KeyboardEvent<HTMLElement>) => void;
+  alias: string;
+  password: string;
   setAlias: (value: string) => void;
   setPassword: (value: string) => void;
 }
@@ -14,7 +16,8 @@ const AuthenticationFields = (props: Props) => {
           size={50}
           id="aliasInput"
           placeholder="name@example.com"
-          onKeyDown={props.function}
+          value={props.alias}
+          onKeyDown={props.onKeyDown}
           onChange={(event) => props.setAlias(event.target.value)}
         />
         <label htmlFor="aliasInput">Alias</label>
@@ -25,7 +28,8 @@ const AuthenticationFields = (props: Props) => {
           className="form-control bottom"
           id="passwordInput"
           placeholder="Password"
-          onKeyDown={props.function}
+          value={props.password}
+          onKeyDown={props.onKeyDown}
           onChange={(event) => props.setPassword(event.target.value)}
         />
         <label htmlFor="passwordInput">Password</label>

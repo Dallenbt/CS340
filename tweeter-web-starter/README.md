@@ -24,3 +24,12 @@ Rebuild either module of the project (tweeter-shared or tweeter-web) by running 
 ## Running the Project
 
 Run the project by running 'npm start' from within the 'tweeter-web' folder.
+
+## Web Application Architecture
+
+The web application follows Model-View-Presenter. Components under
+`tweeter-web/src/components` render the UI and forward user actions to presenters.
+Presenters under `tweeter-web/src/presenter` coordinate screen behavior and update
+their views through callbacks. Services under `tweeter-web/src/model.service`
+provide data access and persistence; they currently use `FakeData` where server
+operations have not yet been implemented.
