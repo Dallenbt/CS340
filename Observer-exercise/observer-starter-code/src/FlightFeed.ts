@@ -1,12 +1,16 @@
 import { Flight } from "./entity/Flight";
 import { FlightStates } from "./entity/FlightStates";
+import { Observer } from "./Observer";
 
-export class FlightFeed {
+export class FlightFeed  extends Subject {
   private OPEN_SKY_BASE_URL = "https://opensky-network.org/api/states/all";
   // private OPEN_SKY_BASE_URL = "https://students.cs.byu.edu/~cs340ta/observer/index.php"
 
   // Flight property
   _flight: Flight | null = null;
+  public addObserver(observer: Observer): void {
+    super.addObserver(observer);
+  }
 
   async start(): Promise<void> {
     let allFlights: FlightStates | null = await this.getFirstFlights();
@@ -14,6 +18,7 @@ export class FlightFeed {
     if (allFlights != null && allFlights.states.length > 0) {
       // Monitor the first flight returned by Open Sky
       this.setFlight(allFlights.states[0]);
+      this.notifyObservers();
       console.log(this._flight);
 
       while (true) {
@@ -33,6 +38,7 @@ export class FlightFeed {
           if (JSON.stringify(this._flight) !== JSON.stringify(newFlight)) {
             // Flight info changed
             this.setFlight(newFlight);
+            this.notifyObservers();
             console.log(this._flight);
           } 
         } 
