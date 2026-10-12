@@ -39,7 +39,7 @@ export class Cat extends Animal {
 
     let mostDifficultCatString =
       mostDifficultCat.name +
-      " needs the most training." +
+      " needs the most training. " +
       (mostDifficultCat.purrs
         ? "It is friendly and purrs a lot"
         : " It is grumpy and rarely purrs.") +
