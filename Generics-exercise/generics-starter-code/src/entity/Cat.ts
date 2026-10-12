@@ -17,17 +17,10 @@ export class Cat extends Animal {
   }
 
   static getCatsSorted(catList: Cat[]) {
-    return catList.sort((cat1, cat2) =>
-      cat1.trainingPriority < cat2.trainingPriority ? -1 : 1
-    );
+    return Cat.getAnimalsSorted(catList);
   }
   static getCatsTrainingPriorityList(catList: Cat[]): string {
-    return catList
-      .map(
-        (cat) =>
-          cat.name + "'s training priority: " + cat.trainingPriority + "\n"
-      )
-      .join("");
+    return Cat.getAnimalPriorityList(catList);
   }
 
   static getCatsSummary(catListNotSorted: Cat[]): string {
@@ -47,10 +40,10 @@ export class Cat extends Animal {
     let mostDifficultCatString =
       mostDifficultCat.name +
       " needs the most training." +
-      (easiestCat.purrs
+      (mostDifficultCat.purrs
         ? "It is friendly and purrs a lot"
         : " It is grumpy and rarely purrs.") +
-      (easiestCat.climbsFurniture
+      (mostDifficultCat.climbsFurniture
         ? " It unfortunately climbs furniture a lot, leaving scratches."
         : " It fortunately does not climb furniture.");
     let catTrainingPriorities = this.getCatsTrainingPriorityList(catList);
