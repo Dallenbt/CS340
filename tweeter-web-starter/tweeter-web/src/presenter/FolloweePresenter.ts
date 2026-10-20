@@ -1,13 +1,14 @@
-import { AuthToken } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { FollowService } from "../model.service/FollowService";
-import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
+import { UserItemPresenter } from "./UserItemPresenter";
+import { PagedItemView } from "./PagedItemPresenter";
 
 export const PAGE_SIZE = 10;
 
 export class FolloweePresenter extends UserItemPresenter {
   private service: FollowService;
 
-  public constructor(view: UserItemView) {
+  public constructor(view: PagedItemView<User>) {
     super(view);
     this.service = new FollowService();
   }

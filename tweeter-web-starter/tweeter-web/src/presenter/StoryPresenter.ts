@@ -1,26 +1,31 @@
 import { AuthToken, Status } from "tweeter-shared";
-import { StatusItemPresenter, StatusItemView } from "./StatusItemPresenter";
+import { StatusItemPresenter } from "./StatusItemPresenter";
+import { StatusService } from "../model.service/StatusService";
+import { PagedItemView } from "./PagedItemPresenter";
+
+export const PAGE_SIZE = 10;
 
 export class StoryPresenter extends StatusItemPresenter {
-  public constructor(view: StatusItemView) {
+  private service: StatusService;
+
+  public constructor(view: PagedItemView<Status>) {
     super(view);
+    this.service = new StatusService();
   }
 
-  protected get itemDescription(): string {
-    return "story items";
-  }
+  public async loadMoreItems(authToken: AuthToken, userAlias: string) {
+    this.doFailureReportingOperation(async () => {
+      const [newItems, hasMore] = await this.service.loadMoreFeedItems(
+        authToken,
+        userAlias,
+        PAGE_SIZE,
+        this.lastItem,
+      );
 
-  protected loadPage(
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null,
-  ): Promise<[Status[], boolean]> {
-    return this.statusService.loadMoreStoryItems(
-      authToken,
-      userAlias,
-      pageSize,
-      lastItem,
-    );
+      this.hasMoreItems = hasMore;
+      this.lastItem =
+        newItems.length > 0 ? newItems[newItems.length - 1] : null;
+      this.view.addItems(newItems);
+    }, "feed followees");
   }
 }
