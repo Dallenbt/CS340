@@ -20,7 +20,7 @@ export class UserNavigationPresenter extends Presenter<UserNavigationView> {
     alias: string,
     featurePath: string,
   ): Promise<void> {
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       const user = await this.service.getUser(authToken, alias);
       if (user && (!displayedUser || !user.equals(displayedUser))) {
         this.view.setDisplayedUser(user);

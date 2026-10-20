@@ -37,12 +37,11 @@ export class LoginPresenter extends Presenter<LoginView> {
     rememberMe: boolean,
     originalUrl?: string,
   ): Promise<void> {
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
       const [user, authToken] = await this.service.login(alias, password);
       this.view.updateUserInfo(user, user, authToken, rememberMe);
       this.view.navigate(originalUrl || `/feed/${user.alias}`);
-    }, "log user in");
-    this.view.setLoading(false);
+    }, "log user in", () => this.view.setLoading(false));
   }
 }

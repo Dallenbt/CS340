@@ -29,7 +29,7 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
     currentUser: User,
   ): Promise<void> {
     let toastId = "";
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
       toastId = this.view.displayInfoMessage("Posting status...", 0);
       await this.service.postStatus(
@@ -38,9 +38,15 @@ export class PostStatusPresenter extends Presenter<PostStatusView> {
       );
       this.view.setPost("");
       this.view.displayInfoMessage("Status posted!", 2000);
-    }, "post status");
-    this.view.deleteMessage(toastId);
-    this.view.setLoading(false);
+    }, "post status", () => {
+      try {
+        if (toastId) {
+          this.view.deleteMessage(toastId);
+        }
+      } finally {
+        this.view.setLoading(false);
+      }
+    });
   }
 
   public clear(event: { preventDefault: () => void }): void {

@@ -70,7 +70,7 @@ export class RegisterPresenter extends Presenter<RegisterView> {
     imageFileExtension: string,
     rememberMe: boolean,
   ): Promise<void> {
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
       const [user, authToken] = await this.service.register(
         firstName,
@@ -82,8 +82,6 @@ export class RegisterPresenter extends Presenter<RegisterView> {
       );
       this.view.updateUserInfo(user, user, authToken, rememberMe);
       this.view.navigate(`/feed/${user.alias}`);
-    }, "register user");
-
-    this.view.setLoading(false);
+    }, "register user", () => this.view.setLoading(false));
   }
 }

@@ -16,11 +16,10 @@ export class LogoutPresenter extends Presenter<LogoutView> {
 
   public async logout(authToken: AuthToken): Promise<void> {
     const toastId = this.view.displayInfoMessage("Logging Out...", 0);
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       await this.service.logout(authToken);
       this.view.clearUserInfo();
       this.view.navigate("/login");
-    }, "log user out");
-    this.view.deleteMessage(toastId);
+    }, "log user out", () => this.view.deleteMessage(toastId));
   }
 }

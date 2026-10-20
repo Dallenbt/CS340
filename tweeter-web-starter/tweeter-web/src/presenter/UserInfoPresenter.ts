@@ -23,7 +23,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
     currentUser: User,
     displayedUser: User,
   ): Promise<void> {
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       const [followerCount, followeeCount, isFollower] = await Promise.all([
         this.service.getFollowerCount(authToken, displayedUser),
         this.service.getFolloweeCount(authToken, displayedUser),
@@ -73,7 +73,7 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
   ): Promise<void> {
     const action = follow ? "Following" : "Unfollowing";
     let toastId = "";
-    this.doFailureReportingOperation(async () => {
+    await this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
       toastId = this.view.displayInfoMessage(
         `${action} ${displayedUser.name}...`,
@@ -85,9 +85,14 @@ export class UserInfoPresenter extends Presenter<UserInfoView> {
       this.view.setIsFollower(follow);
       this.view.setFollowerCount(followerCount);
       this.view.setFolloweeCount(followeeCount);
-    }, "change follow status");
-
-    this.view.deleteMessage(toastId);
-    this.view.setLoading(false);
+    }, "change follow status", () => {
+      try {
+        if (toastId) {
+          this.view.deleteMessage(toastId);
+        }
+      } finally {
+        this.view.setLoading(false);
+      }
+    });
   }
 }
