@@ -19,7 +19,8 @@ const Login = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
-  const { displayErrorMessage, displayInfoMessage } = useMessageActions();
+  const { displayErrorMessage, displayInfoMessage, deleteMessage } =
+    useMessageActions();
 
   const presenter = useRef<LoginPresenter | null>(null);
   if (!presenter.current) {
@@ -29,6 +30,7 @@ const Login = (props: Props) => {
       navigate,
       displayInfoMessage,
       displayErrorMessage,
+      deleteMessage,
     });
   }
 

@@ -14,11 +14,12 @@ import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
 import { useUserInfo } from "./components/userInfo/UserHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
-import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
 import { FeedPresenter } from "./presenter/FeedPresenter";
 import { StoryPresenter } from "./presenter/StoryPresenter";
-import { StatusItemView } from "./presenter/StatusItemPresenter";
+import { PagedItemView } from "./presenter/PagedItemPresenter";
+import { Status, User } from "tweeter-shared";
+
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -56,7 +57,7 @@ const AuthenticatedRoutes = () => {
           element={
             <StatusItemScroller
               featurePath="/feed"
-              presenterFactory={(view: StatusItemView) =>
+              presenterFactory={(view: PagedItemView<Status>) =>
                 new FeedPresenter(view)
               }
             />
@@ -67,7 +68,7 @@ const AuthenticatedRoutes = () => {
           element={
             <StatusItemScroller
               featurePath="/story"
-              presenterFactory={(view: StatusItemView) =>
+              presenterFactory={(view: PagedItemView<Status>) =>
                 new StoryPresenter(view)
               }
             />
@@ -79,7 +80,7 @@ const AuthenticatedRoutes = () => {
             <UserItemScroller
               key={"followees-" + displayedUser!.alias}
               featurePath="/followees"
-              presenterFactory={(view: UserItemView) =>
+              presenterFactory={(view: PagedItemView<User>) =>
                 new FolloweePresenter(view)
               }
             />
@@ -91,7 +92,7 @@ const AuthenticatedRoutes = () => {
             <UserItemScroller
               key={"followers-" + displayedUser!.alias}
               featurePath="/followers"
-              presenterFactory={(view: UserItemView) =>
+              presenterFactory={(view: PagedItemView<User>) =>
                 new FollowerPresenter(view)
               }
             />

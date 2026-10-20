@@ -20,7 +20,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
-  const { displayErrorMessage, displayInfoMessage } = useMessageActions();
+  const { displayErrorMessage, displayInfoMessage, deleteMessage } = useMessageActions();
 
   const presenter = useRef<RegisterPresenter | null>(null);
   if (!presenter.current) {
@@ -35,6 +35,7 @@ const Register = () => {
       navigate,
       displayInfoMessage,
       displayErrorMessage,
+      deleteMessage,
     });
   }
 
