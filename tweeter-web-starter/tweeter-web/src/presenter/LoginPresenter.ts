@@ -16,10 +16,6 @@ export interface LoginView extends MessageView {
 export class LoginPresenter extends Presenter<LoginView> {
   private readonly service = new AuthenticationService();
 
-  public constructor(view: LoginView) {
-    super(view);
-  }
-
   public canSubmit(alias: string, password: string): boolean {
     return !!alias && !!password;
   }
@@ -37,11 +33,15 @@ export class LoginPresenter extends Presenter<LoginView> {
     rememberMe: boolean,
     originalUrl?: string,
   ): Promise<void> {
-    await this.doFailureReportingOperation(async () => {
-      this.view.setLoading(true);
-      const [user, authToken] = await this.service.login(alias, password);
-      this.view.updateUserInfo(user, user, authToken, rememberMe);
-      this.view.navigate(originalUrl || `/feed/${user.alias}`);
-    }, "log user in", () => this.view.setLoading(false));
+    await this.doFailureReportingOperation(
+      async () => {
+        this.view.setLoading(true);
+        const [user, authToken] = await this.service.login(alias, password);
+        this.view.updateUserInfo(user, user, authToken, rememberMe);
+        this.view.navigate(originalUrl || `/feed/${user.alias}`);
+      },
+      "log user in",
+      () => this.view.setLoading(false),
+    );
   }
 }
