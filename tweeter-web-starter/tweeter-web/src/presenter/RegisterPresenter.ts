@@ -1,7 +1,8 @@
 import { AuthToken, User } from "tweeter-shared";
 import { AuthenticationService } from "../model.service/AuthenticationService";
+import { MessageView, Presenter } from "./Presenter";
 
-export interface RegisterView {
+export interface RegisterView extends MessageView {
   setLoading: (loading: boolean) => void;
   setImage: (bytes: Uint8Array, dataUrl: string, extension: string) => void;
   updateUserInfo: (
@@ -11,20 +12,13 @@ export interface RegisterView {
     remember: boolean,
   ) => void;
   navigate: (path: string) => void;
-  displayInfoMessage: (
-    message: string,
-    duration: number,
-    bootstrapClasses?: string,
-  ) => string;
-  displayErrorMessage: (message: string, bootstrapClasses?: string) => void;
 }
 
-export class RegisterPresenter {
-  private readonly view: RegisterView;
+export class RegisterPresenter extends Presenter<RegisterView> {
   private readonly service = new AuthenticationService();
 
   public constructor(view: RegisterView) {
-    this.view = view;
+    super(view);
   }
 
   public canSubmit(
@@ -49,7 +43,6 @@ export class RegisterPresenter {
     this.view.displayInfoMessage(
       `${provider} registration is not implemented.`,
       3000,
-      "text-white bg-primary",
     );
   }
 
@@ -64,7 +57,6 @@ export class RegisterPresenter {
     } catch (error) {
       this.view.displayErrorMessage(
         `Failed to read user image because of exception: ${error}`,
-        "text-white bg-danger",
       );
     }
   }
@@ -78,7 +70,7 @@ export class RegisterPresenter {
     imageFileExtension: string,
     rememberMe: boolean,
   ): Promise<void> {
-    try {
+    this.doFailureReportingOperation(async () => {
       this.view.setLoading(true);
       const [user, authToken] = await this.service.register(
         firstName,
@@ -90,13 +82,8 @@ export class RegisterPresenter {
       );
       this.view.updateUserInfo(user, user, authToken, rememberMe);
       this.view.navigate(`/feed/${user.alias}`);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`,
-        "text-white bg-danger",
-      );
-    } finally {
-      this.view.setLoading(false);
-    }
+    }, "register user");
+
+    this.view.setLoading(false);
   }
 }

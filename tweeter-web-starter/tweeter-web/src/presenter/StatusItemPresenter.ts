@@ -1,23 +1,22 @@
 import { AuthToken, Status, User } from "tweeter-shared";
 import { StatusService } from "../model.service/StatusService";
 import { UserService } from "../model.service/UserService";
+import { Presenter, View } from "./Presenter";
 
 export const STATUS_PAGE_SIZE = 10;
 
-export interface StatusItemView {
+export interface StatusItemView extends View {
   addItems: (items: Status[]) => void;
-  displayErrorMessage: (message: string, bootstrapClasses?: string) => void;
 }
 
-export abstract class StatusItemPresenter {
-  private readonly view: StatusItemView;
+export abstract class StatusItemPresenter extends Presenter<StatusItemView> {
   private readonly service: StatusService;
   private readonly userService = new UserService();
   private _lastItem: Status | null = null;
   private _hasMoreItems = true;
 
   protected constructor(view: StatusItemView) {
-    this.view = view;
+    super(view);
     this.service = new StatusService();
   }
 
@@ -38,7 +37,7 @@ export abstract class StatusItemPresenter {
     authToken: AuthToken,
     userAlias: string,
   ): Promise<void> {
-    try {
+    this.doFailureReportingOperation(async () => {
       const [items, hasMore] = await this.loadPage(
         authToken,
         userAlias,
@@ -50,12 +49,7 @@ export abstract class StatusItemPresenter {
         this._lastItem = items[items.length - 1];
       }
       this.view.addItems(items);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to load ${this.itemDescription} because of exception: ${error}`,
-        "text-white bg-danger",
-      );
-    }
+    }, `load ${this.itemDescription}`);
   }
 
   protected abstract get itemDescription(): string;
