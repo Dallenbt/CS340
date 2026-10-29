@@ -4,13 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { PostStatusPresenter } from "../../src/presenter/PostStatusPresenter";
-import {
-  anything,
-  instance,
-  mock,
-  verify,
-  when,
-} from "@typestrong/ts-mockito";
+import { anything, instance, mock, verify, when } from "@typestrong/ts-mockito";
 import { UserInfoContext } from "../../src/components/userInfo/UserInfoContexts";
 
 describe("Post Component", () => {
@@ -53,16 +47,15 @@ describe("Post Component", () => {
       mockPresenter.canSubmit(anything(), anything(), anything(), anything()),
     ).thenReturn(true);
 
-    const { user, postButton, postField } =
-      renderPostAndGetElements(mockPresenterInstance);
+    const { user, postButton, postField } = renderPostAndGetElements(
+      mockPresenterInstance,
+    );
     const post = "Hello world";
 
     await user.type(postField, post);
     await user.click(postButton);
 
-    verify(
-      mockPresenter.submit(post, authToken, currentUser),
-    ).once();
+    verify(mockPresenter.submit(post, authToken, currentUser)).once();
   });
 });
 
