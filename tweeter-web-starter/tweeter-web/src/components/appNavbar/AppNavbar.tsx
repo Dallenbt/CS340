@@ -3,7 +3,7 @@ import { Container, Image, Nav, Navbar } from "react-bootstrap";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserHooks";
-import { LogoutPresenter } from "../../presenter/LogoutPresenter";
+import { AppNavbarPresenter } from "../../presenter/AppNavbarPresenter";
 import { useRef } from "react";
 
 const AppNavbar = () => {
@@ -13,7 +13,7 @@ const AppNavbar = () => {
   const navigate = useNavigate();
   const { displayInfoMessage, deleteMessage, displayErrorMessage } =
     useMessageActions();
-  class AppNavbarLogoutPresenter extends LogoutPresenter {
+  class AppNavbarLogoutPresenter extends AppNavbarPresenter {
     constructor(dependencies: {
       clearUserInfo: typeof clearUserInfo;
       navigate: typeof navigate;
@@ -24,7 +24,7 @@ const AppNavbar = () => {
       super(dependencies);
     }
   }
-  const presenter = useRef<LogoutPresenter | null>(null);
+  const presenter = useRef<AppNavbarPresenter | null>(null);
   if (!presenter.current) {
     presenter.current = new AppNavbarLogoutPresenter({
       clearUserInfo,
