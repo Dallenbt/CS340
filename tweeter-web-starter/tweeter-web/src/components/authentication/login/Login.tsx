@@ -10,6 +10,7 @@ import { LoginPresenter } from "../../../presenter/LoginPresenter";
 
 interface Props {
   originalUrl?: string;
+  presenter?: LoginPresenter;
 }
 
 const Login = (props: Props) => {
@@ -32,7 +33,7 @@ const Login = (props: Props) => {
       displayErrorMessage: typeof displayErrorMessage;
       deleteMessage: typeof deleteMessage;
     }) => LoginPresenter;
-    presenter.current = new PresenterConstructor({
+    presenter.current = props.presenter?? new PresenterConstructor({
       setLoading: setIsLoading,
       updateUserInfo,
       navigate,
