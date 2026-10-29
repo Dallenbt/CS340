@@ -9,7 +9,6 @@ import {
   verify,
   spy,
   when,
-  capture,
   anything,
 } from "@typestrong/ts-mockito";
 import { AuthenticationService } from "../../src/model.service/AuthenticationService";
@@ -25,7 +24,9 @@ describe("AppNavbarPresenter", () => {
     const mockAppNavbarPresenterViewInstance = instance(
       mockAppNavbarPresenterView,
     );
-    when(mockAppNavbarPresenterView.displayInfoMessage(anything(), 0)).thenReturn('messageId123')
+    when(
+      mockAppNavbarPresenterView.displayInfoMessage(anything(), 0),
+    ).thenReturn("messageId123");
     const appNavbarPresenterSpy = spy(
       new AppNavbarPresenter(mockAppNavbarPresenterViewInstance),
     );
@@ -59,15 +60,18 @@ describe("AppNavbarPresenter", () => {
     verify(mockAppNavbarPresenterView.displayErrorMessage(anything())).never();
   });
 
-  it("tells the view to display an error message and does not tell it to clear the info message, clear the user info or navigate to the login page when unsuccessful", async () =>{
+  it("tells the view to display an error message and does not tell it to clear the info message, clear the user info or navigate to the login page when unsuccessful", async () => {
     let error = new Error("Fail");
-    when(mockService.logout(anything())).thenThrow(error)
+    when(mockService.logout(anything())).thenThrow(error);
     await appNavbarPresenter.logout(authToken);
 
-    verify(mockAppNavbarPresenterView.displayErrorMessage("Failed to log user out because of exception: Fail")).once();
+    verify(
+      mockAppNavbarPresenterView.displayErrorMessage(
+        "Failed to log user out because of exception: Fail",
+      ),
+    ).once();
     verify(mockAppNavbarPresenterView.deleteMessage(anything())).never();
     verify(mockAppNavbarPresenterView.clearUserInfo()).never();
     verify(mockAppNavbarPresenterView.navigate(anything())).never();
-
-  })
+  });
 });
