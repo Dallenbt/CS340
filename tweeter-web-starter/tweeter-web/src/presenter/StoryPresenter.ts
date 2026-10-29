@@ -4,13 +4,13 @@ import { PAGE_SIZE } from "./PagedItemPresenter";
 
 export class StoryPresenter extends StatusItemPresenter {
   protected ItemDescription(): string {
-    return "feed followees";
+    return "story items";
   }
   protected getMoreItems(
     authToken: AuthToken,
     userAlias: string,
   ): Promise<[Status[], boolean]> {
-    return this.service.loadMoreFeedItems(
+    return this.service.loadMoreStoryItems(
       authToken,
       userAlias,
       PAGE_SIZE,
