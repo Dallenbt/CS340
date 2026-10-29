@@ -16,7 +16,7 @@ describe("Login Component", () => {
     expect(signInButton).toBeDisabled();
   });
 
-  it("enables the sign in button if both fiedls have text", async () => {
+  it("enables the sign in button if both fields have text", async () => {
     const { user, signInButton, aliasField, passwordField } =
       renderLoginAndGetElements("/");
 

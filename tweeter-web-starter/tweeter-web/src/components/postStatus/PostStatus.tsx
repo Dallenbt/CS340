@@ -4,7 +4,11 @@ import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo } from "../userInfo/UserHooks";
 import { PostStatusPresenter } from "../../presenter/PostStatusPresenter";
 
-const PostStatus = () => {
+interface Props {
+  presenter?: PostStatusPresenter;
+}
+
+const PostStatus = (props: Props) => {
   const { displayInfoMessage, deleteMessage, displayErrorMessage } =
     useMessageActions();
   const { currentUser, authToken } = useUserInfo();
@@ -13,13 +17,15 @@ const PostStatus = () => {
 
   const presenter = useRef<PostStatusPresenter | null>(null);
   if (!presenter.current) {
-    presenter.current = new PostStatusPresenter({
-      setPost,
-      setLoading: setIsLoading,
-      displayInfoMessage,
-      deleteMessage,
-      displayErrorMessage,
-    });
+    presenter.current =
+      props.presenter ??
+      new PostStatusPresenter({
+        setPost,
+        setLoading: setIsLoading,
+        displayInfoMessage,
+        deleteMessage,
+        displayErrorMessage,
+      });
   }
 
   const canSubmit = presenter.current.canSubmit(
