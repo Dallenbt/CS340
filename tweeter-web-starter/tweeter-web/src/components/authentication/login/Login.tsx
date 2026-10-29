@@ -24,7 +24,15 @@ const Login = (props: Props) => {
 
   const presenter = useRef<LoginPresenter | null>(null);
   if (!presenter.current) {
-    presenter.current = new LoginPresenter({
+    const PresenterConstructor = LoginPresenter as new (dependencies: {
+      setLoading: typeof setIsLoading;
+      updateUserInfo: typeof updateUserInfo;
+      navigate: typeof navigate;
+      displayInfoMessage: typeof displayInfoMessage;
+      displayErrorMessage: typeof displayErrorMessage;
+      deleteMessage: typeof deleteMessage;
+    }) => LoginPresenter;
+    presenter.current = new PresenterConstructor({
       setLoading: setIsLoading,
       updateUserInfo,
       navigate,

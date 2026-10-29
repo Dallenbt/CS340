@@ -13,9 +13,20 @@ const AppNavbar = () => {
   const navigate = useNavigate();
   const { displayInfoMessage, deleteMessage, displayErrorMessage } =
     useMessageActions();
+  class AppNavbarLogoutPresenter extends LogoutPresenter {
+    constructor(dependencies: {
+      clearUserInfo: typeof clearUserInfo;
+      navigate: typeof navigate;
+      displayInfoMessage: typeof displayInfoMessage;
+      deleteMessage: typeof deleteMessage;
+      displayErrorMessage: typeof displayErrorMessage;
+    }) {
+      super(dependencies);
+    }
+  }
   const presenter = useRef<LogoutPresenter | null>(null);
   if (!presenter.current) {
-    presenter.current = new LogoutPresenter({
+    presenter.current = new AppNavbarLogoutPresenter({
       clearUserInfo,
       navigate,
       displayInfoMessage,

@@ -19,11 +19,15 @@ export const useUserNavigation = (featurePath: string) => {
   const { displayErrorMessage } = useMessageActions();
   const presenter = useMemo(
     () =>
-      new UserNavigationPresenter({
-        setDisplayedUser,
-        navigate,
-        displayErrorMessage,
-      }),
+      new (class extends UserNavigationPresenter {
+        constructor(view: {
+          setDisplayedUser: typeof setDisplayedUser;
+          navigate: typeof navigate;
+          displayErrorMessage: typeof displayErrorMessage;
+        }) {
+          super(view);
+        }
+      })({ setDisplayedUser, navigate, displayErrorMessage }),
     [setDisplayedUser, navigate, displayErrorMessage],
   );
   return useCallback(async (event: MouseEvent<HTMLAnchorElement>) => {
